@@ -1,0 +1,41 @@
+#include "RPCServer.h"
+#include <iostream>
+
+void RPCServer::register_default_handlers() {
+    handlers["hello"] = [this](const auto& p) { return handle_hello(p); };
+    handlers["get_balance"] = [this](const auto& p) { return handle_balance(p); };
+    handlers["get_height"] = [this](const auto& p) { return handle_height(p); };
+}
+
+std::string RPCServer::handle_hello(const std::vector<std::string>& params) {
+    return "Hello from Blockchain RPC Server";
+}
+
+std::string RPCServer::handle_balance(const std::vector<std::string>& params) {
+    if (params.empty()) return "Missing address";
+    return "Balance: 1000";
+}
+
+std::string RPCServer::handle_height(const std::vector<std::string>& params) {
+    return "Chain height: 100";
+}
+
+void RPCServer::start_server() {
+    is_running = true;
+    std::cout << "RPC Server started on port " << port << std::endl;
+}
+
+void RPCServer::stop_server() {
+    is_running = false;
+    std::cout << "RPC Server stopped" << std::endl;
+}
+
+void RPCServer::register_handler(const std::string& method, std::function<std::string(const std::vector<std::string>&)> func) {
+    handlers[method] = func;
+}
+
+std::string RPCServer::execute_rpc(const std::string& method, const std::vector<std::string>& params) {
+    auto it = handlers.find(method);
+    if (it == handlers.end()) return "Method not found";
+    return it->second(params);
+}
